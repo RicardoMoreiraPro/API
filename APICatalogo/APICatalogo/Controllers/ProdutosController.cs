@@ -28,9 +28,9 @@ namespace APICatalogo.Controllers
             return produtos;
         }
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> Get()
+        public async Task<ActionResult<IEnumerable<Produto>>> Get()
         {
-            var produtos = _context.Produtos.AsNoTracking().ToList();
+            var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
             if(produtos is null)
             {
                 return NotFound("Produtos não encontrados...");
@@ -39,9 +39,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-        public ActionResult<Produto> Get(int id)
+        public async Task<ActionResult<Produto>> Get(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(p=> p.ProdutoId == id);
+            var produto = await _context.Produtos.FirstOrDefaultAsync(p=> p.ProdutoId == id);
             if(produto is null)
             {
                 return NotFound("Produto não encontrado...");
