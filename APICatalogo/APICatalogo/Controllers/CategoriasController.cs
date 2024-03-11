@@ -1,4 +1,5 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.Filters;
 using APICatalogo.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,49 +12,39 @@ namespace APICatalogo.Controllers
     public class CategoriasController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ILogger _logger;
 
-        public CategoriasController(AppDbContext context)
+        public CategoriasController(AppDbContext context, ILogger<CategoriasController> logger)
         {
             _context = context;
+            _logger = logger;
         }
         [HttpGet("produtos")]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
+            _logger.LogInformation("===========GET Api/categorias/produtos===============");
             return _context.Categorias.Include(p=> p.Produtos).ToList();
             //Para filtrar
             //return _context.Categorias.Include(p => p.Produtos).Where(c=> c.CategoriaId <= 5).ToList();
         }
         [HttpGet]
-        public ActionResult<IEnumerable<Categoria>> Get()
+        [ServiceFilter(typeof(ApiLoggingFilter))]
+        public async Task<ActionResult<IEnumerable<Categoria>>> Get()
         {
-            try
-            {
-                return _context.Categorias.AsNoTracking().ToList();
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Ocorreu um problema ao tratar a sua solicitação");
-            }
+                _logger.LogInformation("===========GET Api/categorias===============");
+                return await _context.Categorias.AsNoTracking().ToListAsync();
         }
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            try
-            {
                 var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+                _logger.LogInformation($"===========GET Api/categorias/id = {id}===============");
                 if (categoria is null)
                 {
+                    _logger.LogInformation($"========GET Api/categorias/id = {id} NOT FOUND==========");
                     return NotFound($"Categoria com id={id} não encontrado...");
                 }
                 return categoria;
-            }
-            catch (Exception)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Ocorreu um problema ao tratar a sua solicitação");
-            }
             
         }
         [HttpPost]
