@@ -10,6 +10,7 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
+        //teste git
         private readonly AppDbContext _context;
 
         public ProdutosController(AppDbContext context)
